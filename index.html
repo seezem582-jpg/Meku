@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEKU - Stream Anime & Series</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0c0e;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      padding-bottom: 50px;
+    }
+    
+    /* Top Bar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: #111317;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 900;
+      color: #fa4414;
+      letter-spacing: 2px;
+    }
+    .upload-btn {
+      background: #fa4414;
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    /* Hero Banner */
+    .hero {
+      position: relative;
+      height: 60vh;
+      min-height: 380px;
+      background: linear-gradient(180deg, rgba(11,12,14,0.2) 0%, rgba(11,12,14,0.9) 75%, #0b0c0e 100%),
+                  url('https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1600') center/cover no-repeat;
+      display: flex;
+      align-items: flex-end;
+      padding: 30px 24px;
+    }
+    .hero-content { max-width: 650px; }
+    .badge {
+      display: inline-block;
+      background: #fa4414;
+      color: #000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .hero-title {
+      font-size: 38px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      line-height: 1.1;
+    }
+    .hero-desc {
+      font-size: 14px;
+      color: #a0a0a0;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+    .play-btn {
+      background: #fa4414;
+      color: #000;
+      font-weight: 900;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Cards Grid */
+    .section { padding: 24px; }
+    .section-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: #15171e;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: scale(1.03); border-color: #fa4414; }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+    .card-info { padding: 10px; }
+    .card-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { font-size: 11px; color: #707070; margin-top: 4px; }
+
+    /* Video Player Overlay */
+    .player-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 16px;
+    }
+    .player-box {
+      width: 100%;
+      max-width: 900px;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    video { width: 100%; height: auto; display: block; }
+    .close-btn {
+      align-self: flex-end;
+      background: #20232b;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    /* Scraper Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 90;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .modal {
+      background: #15171e;
+      border: 1px solid rgba(255,255,255,0.1);
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .input-box {
+      width: 100%;
+      padding: 12px;
+      background: #0b0c0e;
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 6px;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="navbar">
+    <div class="logo">MEKU</div>
+    <button class="upload-btn" onclick="openModal()">+ Drop & Scrape</button>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <span class="badge">SUB | DUB • 8.8 ★</span>
+      <h1 class="hero-title">Chainsaw Man</h1>
+      <p class="hero-desc">Denji is a teenage boy living with a Chainsaw Devil named Pochita. Due to the debt his father left behind, he is living a life at the rock bottom.</p>
+      <button class="play-btn" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')">▶ WATCH NOW</button>
+    </div>
+  </div>
+
+  <!-- Catalog Section -->
+  <div class="section">
+    <div class="section-title">Popular Anime & Webseries</div>
+    <div class="grid" id="animeGrid">
+      
+      <div class="card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')">
+        <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400" alt="Jujutsu Kaisen">
+        <div class="card-info">
+          <div class="card-title">Jujutsu Kaisen</div>
+          <div class="card-meta">Action • 8.6 ★</div>
+        </div>
+      </div>
+
+      <div class="card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')">
+        <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400" alt="Attack on Titan">
+        <div class="card-info">
+          <div class="card-title">Attack on Titan</div>
+          <div class="card-meta">Dark Fantasy • 9.0 ★</div>
+        </div>
+      </div>
+
+      <div class="card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4')">
+        <img src="https://images.unsplash.com/photo-1563089145-599997674d42?w=400" alt="Cyberpunk">
+        <div class="card-info">
+          <div class="card-title">Cyberpunk: Edgerunners</div>
+          <div class="card-meta">Sci-Fi • 8.7 ★</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Video Player Modal -->
+  <div class="player-overlay" id="playerModal">
+    <div style="max-width: 900px; width: 100%; display: flex; flex-direction: column;">
+      <button class="close-btn" onclick="closePlayer()">✕ Close Player</button>
+      <div class="player-box">
+        <video id="videoElement" controls autoplay></video>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auto Ingest Modal -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal">
+      <h3 style="color:#fa4414; margin-bottom:8px;">Auto Metadata Ingestion</h3>
+      <p style="font-size:12px; color:#aaa;">Video file ka naam daalein, MEKU parser apne aap poster aur details set kar dega:</p>
+      
+      <input type="text" id="fileNameInput" class="input-box" value="[SubsPlease] Solo Leveling S01E01 1080p.mkv">
+      
+      <div style="display:flex; gap:10px;">
+        <button class="upload-btn" style="flex:1;" onclick="processScrape()">Parse & Auto Add</button>
+        <button class="close-btn" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function playVideo(url) {
+      const modal = document.getElementById('playerModal');
+      const video = document.getElementById('videoElement');
+      video.src = url;
+      modal.style.display = 'flex';
+      video.play();
+    }
+
+    function closePlayer() {
+      const modal = document.getElementById('playerModal');
+      const video = document.getElementById('videoElement');
+      video.pause();
+      modal.style.display = 'none';
+    }
+
+    function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
+
+    function processScrape() {
+      const val = document.getElementById('fileNameInput').value;
+      // Auto parse title regex
+      const cleanTitle = val.replace(/\[.*?\]|\(.*?\)/g, '').split(/S\d+|E\d+|\d+p/i)[0].trim();
+      
+      const grid = document.getElementById('animeGrid');
+      const newCard = document.createElement('div');
+      newCard.className = 'card';
+      newCard.onclick = () => playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
+      newCard.innerHTML = `
+        <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400">
+        <div class="card-info">
+          <div class="card-title" style="color:#fa4414;">${cleanTitle || 'Solo Leveling'}</div>
+          <div class="card-meta">Auto Parsed • 8.9 ★</div>
+        </div>
+      `;
+      grid.prepend(newCard);
+      closeModal();
+    }
+  </script>
+</body>
+</html>
